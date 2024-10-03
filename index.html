@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Model Marketplace</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>AI Model Marketplace</h1>
+
+        <div class="section">
+            <h2>List a Model</h2>
+            <form id="listModelForm">
+                <input type="text" id="modelName" placeholder="Name" required>
+                <input type="text" id="modelDescription" placeholder="Description" required>
+                <input type="number" id="modelPrice" placeholder="Price" required>
+                <button type="submit">List Model</button>
+            </form>
+        </div>
+
+        <div class="section">
+            <h2>Available Models</h2>
+            <div class="model-list" id="modelList"></div>
+        </div>
+
+        <div class="section">
+            <h2>Purchase a Model</h2>
+            <input type="number" id="purchaseModelId" placeholder="Model ID">
+            <button id="purchaseModelButton">Purchase Model</button>
+        </div>
+
+        <div class="section">
+            <h2>Rate a Model</h2>
+            <input type="number" id="rateModelId" placeholder="Model ID">
+            <input type="number" id="modelRating" placeholder="Rating (1-5)">
+            <button id="rateModelButton">Rate Model</button>
+        </div>
+
+        <div class="section">
+            <h2>Delete a Model</h2>
+            <input type="number" id="deleteModelId" placeholder="Model ID">
+            <button id="deleteModelButton">Delete Model</button>
+        </div>
+
+        <div class="section">
+            <h2>Withdraw Funds</h2>
+            <button id="withdrawFundsButton">Withdraw Funds</button>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.6.0/web3.min.js"></script>
+    <script>
+        let contract;
+        const contractAddress = '0x79c3faa449C34aEC03359563BdEfa5A0A264EA1c'; // Replace with your contract address
+        let contractABI;
+
+        async function fetchABI() {
+            const response = await fetch('abi.json');
+            contractABI = await response.json();
+            initializeContract();
+        }
+
+        // Initialize contract
+        async function initializeContract() {
+            const web3 = new Web3(Web3.givenProvider || "http://localhost:8545");
+            contract = new web3.eth.Contract(contractABI, contractAddress);
+            await loadModels();
+        }
+
+        window.onload = fetchABI;
+
+        document.getElementById('listModelForm').onsubmit = async (event) => {
+            event.preventDefault();
+            const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+            const name = document.getElementById('modelName').value;
+            const description = document.getElementById('modelDescription').value;
+            const price = document.getElementById('modelPrice').value;
+
+            await contract.methods.listModel(name, description, price).send({ from: accounts[0] });
+            loadModels();
+        };
+
+        document.getElementById('purchaseModelButton').onclick = async () => {
+            const modelId = parseInt(document.getElementById('purchaseModelId').value);
+            const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+            const modelDetails = await contract.methods.getModelDetails(modelId).call();
+
+            await contract.methods.purchaseModel(modelId).send({ from: accounts[0], value: modelDetails[2] }); // value is price
+            loadModels();
+        };
+
+        document.getElementById('rateModelButton').onclick = async () => {
+            const modelId = parseInt(document.getElementById('rateModelId').value);
+            const rating = parseInt(document.getElementById('modelRating').value);
+            const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+
+            await contract.methods.rateModel(modelId, rating).send({ from: accounts[0] });
+            loadModels();
+        };
+
+        document.getElementById('deleteModelButton').onclick = async () => {
+            const modelId = parseInt(document.getElementById('deleteModelId').value);
+            const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+
+            await contract.methods.deleteModel(modelId).send({ from: accounts[0] });
+            loadModels();
+        };
+
+        document.getElementById('withdrawFundsButton').onclick = async () => {
+            const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+            await contract.methods.withdrawFunds().send({ from: accounts[0] });
+        };
+
+        async function loadModels() {
+            const modelList = document.getElementById('modelList');
+            modelList.innerHTML = '';
+
+            const modelCount = await contract.methods.modelCount().call();
+
+            for (let i = 0; i < modelCount; i++) {
+                const modelDetails = await contract.methods.getModelDetails(i).call();
+                const averageRating = modelDetails[4] > 0 ? (modelDetails[5] / modelDetails[4]).toFixed(1) : 'N/A'; // ratingCount and totalRating
+
+                modelList.innerHTML += `
+                    <div class="model-item">
+                        <strong>ID: ${i}</strong>
+                        <p><strong>Name:</strong> ${modelDetails[0]}</p>
+                        <p><strong>Description:</strong> ${modelDetails[1]}</p>
+                        <p><strong>Price:</strong> ${modelDetails[2]} ETH</p>
+                        <p><strong>Creator:</strong> ${modelDetails[3]}</p>
+                        <p><strong>Average Rating:</strong> ${averageRating}</p>
+                    </div>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>
