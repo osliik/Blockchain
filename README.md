@@ -27,4 +27,40 @@ The **AI Model Marketplace** is a decentralized application (dApp) that allows u
 - **Delete Button**: Allows model creators to delete their models from the marketplace.
 - **Withdraw Button**: Allows model creators to withdraw their funds.
 
+## Screenshots
+
+![Screenshot 1](1.png)
+![Screenshot 2](2.png)
+
+# Usage Instructions
+
+## 1. List a Model
+To list a model:
+- Fill in the **Model Name**, **Description**, and **Price** in the **List a Model** form.
+- Click the **List Model** button.
+
+## 2. Purchase a Model
+To buy a model:
+- Enter the **Model ID** in the **Purchase** section.
+- Click the **Purchase Model** button.
+- Confirm the transaction in your wallet.
+
+## 3. Rate a Model
+After purchasing a model, you can rate it:
+- Enter the **Model ID** and your **Rating** (1-5) in the **Rating** section.
+- Click the **Rate Model** button.
+
+## 4. Delete a Model
+If you are the creator of a model, you can delete it:
+- Enter its **ID** in the **Delete** section.
+- Click the **Delete Model** button.
+
+## 5. Withdraw Funds
+If you are the contract owner:
+- Click the **Withdraw Funds** button to withdraw available funds.
+
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
 
