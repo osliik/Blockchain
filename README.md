@@ -16,7 +16,6 @@ The **AI Model Marketplace** is a decentralized application (dApp) that allows u
 - `rateModel(uint256 modelId, uint8 rating)`: Lets users rate a purchased AI model.
 - `deleteModel(uint256 modelId)`: Allows the model creator or contract owner to delete a model.
 - `withdrawFunds()`: Allows the contract owner to withdraw funds from model sales.
-- `getModelDetails(uint256 modelId)`: Retrieves the details of a specific AI model.
 - `modelCount()`: Returns the total number of models listed in the marketplace.
 
 ## Frontend Components
